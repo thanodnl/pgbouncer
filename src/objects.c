@@ -1346,9 +1346,17 @@ found:
 
 	/* remember server, server key and generation */
 	server = main_client->link;
-	req->link = server;
 	memcpy(req->cancel_key, server->cancel_key, 8);
-	req->generation = server->generation;
+	if (cf_cancel_generation_tracking)
+	{
+		req->link = server;
+		req->generation = server->generation;
+	}
+	else
+	{
+		req->link = NULL;
+		req->generation = 0;
+	}
 
 	/* attach to target pool */
 	req->pool = pool;
@@ -1367,11 +1375,18 @@ void forward_cancel_request(PgSocket *server)
 	Assert(server->state == SV_LOGIN);
 
 	/*
-	 * only forward the cancel request if the generation didn't change since receiving the
-	 * cancelation. If the generation has changed in between we have already sent a new
-	 * command to the server which we don't want to cancel.
+	 * forward the cancel request if any of the following conditions hold:
+	 *  - cf_cancel_generation_tracking is disabled:
+	 *    user disable the tracking so we send always.
+	 *  - no server is linked to the request:
+	 *    cf_cancel_generation_tracking was disabled when the request came in.
+	 *  - the generation didn't change since receiving the cancelation:
+	 *    If the generation has changed in between we have already sent a new command to
+	 *    the server which we don't want to cancel.
 	 */
-	if (req->link->generation == req->generation) {
+	if (!cf_cancel_generation_tracking ||
+		req->link == NULL ||
+		req->link->generation == req->generation) {
 		SEND_CancelRequest(res, server, req->cancel_key);
 		if (!res)
 			log_warning("sending cancel request failed: %s", strerror(errno));

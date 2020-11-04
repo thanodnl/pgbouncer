@@ -107,6 +107,7 @@ int cf_min_pool_size;
 int cf_res_pool_size;
 usec_t cf_res_pool_timeout;
 int cf_cancel_bypass_pool_size;
+int cf_cancel_generation_tracking;
 int cf_max_db_connections;
 int cf_max_user_connections;
 
@@ -238,6 +239,7 @@ CF_ABS("min_pool_size", CF_INT, cf_min_pool_size, 0, "0"),
 CF_ABS("reserve_pool_size", CF_INT, cf_res_pool_size, 0, "0"),
 CF_ABS("reserve_pool_timeout", CF_TIME_USEC, cf_res_pool_timeout, 0, "5"),
 CF_ABS("cancel_bypass_pool_size", CF_INT, cf_cancel_bypass_pool_size, 0, "0"),
+CF_ABS("cancel_generation_tracking", CF_INT, cf_cancel_generation_tracking, 0, "0"),
 CF_ABS("max_db_connections", CF_INT, cf_max_db_connections, 0, "0"),
 CF_ABS("max_user_connections", CF_INT, cf_max_user_connections, 0, "0"),
 CF_ABS("syslog", CF_INT, cf_syslog, 0, "0"),
